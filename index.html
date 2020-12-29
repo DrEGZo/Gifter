@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Nanu...?</title>
+    <style>
+        body {
+            margin: 0;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            background-color: #3CBAFF;
+        }
+
+        #gift {
+            height: 70%;
+            background-image: url('gift.gif');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #3CBAFF;
+            background-size: contain;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            z-index: 1;
+        }
+
+        #opener {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #3CBAFF;
+            height: 30%;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        #opener button {
+            background-color: #f00;
+            border: none;
+            border-radius: 40px;
+            color: #fff;
+            font-size: 30px;
+            padding: 20px;
+        }
+
+        #content {
+            height: 100%;
+            opacity: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            color: #fff;
+            text-align: center;
+        }
+
+        #content * {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-style: italic;
+        }
+
+        #content div {
+            width: 100%;
+            height: 40%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            margin: 20px 0; 
+        }
+    </style>
+</head>
+<body>
+    <div id="gift"></div>
+    <div id="opener">
+        <button>Aufmachen!</button>
+    </div>
+    <div id="content">
+        <h1>Herzlichen Glückwunsch!</h1>
+        <h2>Du hast folgendes Geschenk erhalten:</h2>
+        <h4></h4>
+        <div></div>
+    </div>
+    <script>
+        let knopf = document.querySelector('#opener button');
+        let gift = document.getElementById('gift');
+        let opener = document.getElementById('opener');
+        let content = document.getElementById('content');
+        
+        knopf.addEventListener('click', (evt) => {
+            knopf.disabled = true;
+            let counter = 0.4
+            let animation = setInterval(() => {
+                counter += 0.01
+                gift.style.top = (parseFloat(window.getComputedStyle(gift).top) - 7 * counter) + 'px';
+                opener.style.bottom = (parseFloat(window.getComputedStyle(opener).bottom) - 3 * counter) + 'px';
+                gift.style.opacity = parseFloat(window.getComputedStyle(gift).opacity) - counter * 0.01;
+                opener.style.opacity = parseFloat(window.getComputedStyle(opener).opacity) - counter * 0.01;
+                if (parseFloat(window.getComputedStyle(gift).opacity) <= 0) {
+                    clearInterval(animation);
+                    let animation2 = setInterval(() => {
+                        let opac = parseFloat(window.getComputedStyle(content).opacity) + 0.01;
+                        if (opac > 1) clearInterval(animation2);
+                        else content.style.opacity = opac;
+                    }, 10);
+                }
+            }, 10)
+        });
+
+        let request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                let data = JSON.parse(this.responseText);
+                let gift = document.querySelector('#content h4');
+                let pic = document.querySelector('#content div');
+                gift.innerHTML = data.g;
+                pic.style.backgroundImage = 'url("' + data.p + '")';
+            }
+        }
+        request.open('GET', '/data' + window.location.pathname, true);
+        request.send();
+    </script>
+</body>
+</html>
